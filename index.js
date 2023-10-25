@@ -9,6 +9,8 @@ const port = 8081;
 
 app.get("/api");
 
+app.get("https://sandbox.asaas.com/api/v3/customers");
+
 app.listen(port, () => {
   console.log(`Servidor Express rodando na porta ${port}`);
 });
