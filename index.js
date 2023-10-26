@@ -66,9 +66,9 @@ app.get("/api/customers/:id", async (req, res) => {
       });
     });
 });
+
 app.post("/api/customers", async (req, res) => {
   const postData = req.body;
-  console.log(postData);
 
   const options = {
     method: "POST",
@@ -87,11 +87,37 @@ app.post("/api/customers", async (req, res) => {
   axios
     .request(options)
     .then(function (response) {
-      res.sendStatus(201);
+      res.status(201).send(response.data);
     })
     .catch(function (error) {
       console.log(error);
       res.status(500).json({ error: "Erro ao criar cliente na API externa." });
+    });
+});
+
+app.post("/api/payments", async (req, res) => {
+  const postData = req.body;
+  const options = {
+    method: "POST",
+    url: "https://sandbox.asaas.com/api/v3/payments",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      access_token: apiKey,
+    },
+    data: postData,
+    httpsAgent: new https.Agent({
+      rejectUnauthorized: false,
+    }),
+  };
+  axios
+    .request(options)
+    .then(function (response) {
+      res.status(201).send(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+      res.status(500).json({ error: "Erro ao criar cobrança na API externa." });
     });
 });
 
@@ -121,7 +147,34 @@ app.get("/api/payments", async (req, res) => {
     });
 });
 
+app.get("/api/generatePixQRCode/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const options = {
+    method: "GET",
+    url: `https://sandbox.asaas.com/api/v3/payments/${id}/pixQrCode`,
+    headers: {
+      accept: "application/json",
+      access_token: apiKey,
+    },
+    httpsAgent: new https.Agent({
+      rejectUnauthorized: false,
+    }),
+  };
+
+  axios
+    .request(options)
+    .then(function (response) {
+      const data = response.data;
+      res.send(data);
+    })
+    .catch(function (error) {
+      res.status(500).json({
+        error: "Erro ao gerar QR code do PIX.",
+      });
+    });
+});
 
 app.listen(port, () => {
-  console.log(`Servidor Express rodando na porta ${port}`);
+  console.log(`${port} executando...`);
 });
