@@ -226,6 +226,33 @@ app.get("/api/generatePixQRCode/:id", async (req, res) => {
       });
     });
 });
+app.get("/api/generate-boleto/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const options = {
+    method: "GET",
+    url: `https://sandbox.asaas.com/api/v3/payments/${id}/identificationField`,
+    headers: {
+      accept: "application/json",
+      access_token: apiKey,
+    },
+    httpsAgent: new https.Agent({
+      rejectUnauthorized: false,
+    }),
+  };
+
+  axios
+    .request(options)
+    .then(function (response) {
+      const data = response.data;
+      res.send(data);
+    })
+    .catch(function (error) {
+      res.status(500).json({
+        error: "Erro ao gerar Boleto.",
+      });
+    });
+});
 
 app.listen(port, () => {
   console.log(`${port} executando...`);
